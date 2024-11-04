@@ -34,7 +34,7 @@ jobs:
 
       # check out the project and install Julia
       - uses: actions/checkout@v4
-      - uses: julia-actions/setup-julia@v1
+      - uses: julia-actions/setup-julia@v2
         with:
           version: ${{ matrix.version }}
           arch: ${{ matrix.arch }}
@@ -50,23 +50,12 @@ jobs:
           python -m pip install gym wandb
       
       # Now install POMDPGym and configure PyCall
-      - run: julia --color=yes --project -e 'using Pkg; ENV["PYTHON"]="${{ env.PYTHON }}"; Pkg.add("PyCall"); Pkg.build("PyCall"); pkg"add https://github.com/ancorso/POMDPGym.jl"; Pkg.instantiate()'
-      # using a cache can speed up execution times
-      - uses: actions/cache@v3
-        env:
-          cache-name: cache-artifacts
-        with:
-          path: |
-            ~/.julia/artifacts
-            ~/.julia/compiled
-            ~/.julia/packages
-            ~/.julia/registries
-          key: ${{ runner.os }}-${{ matrix.arch }}-julia-${{ matrix.version }}-${{ env.cache-name }}-${{ hashFiles('**/Project.toml') }}
-          restore-keys: |
-            ${{ runner.os }}-${{ matrix.arch }}-julia-${{ matrix.version }}-${{ env.cache-name }}-
-            ${{ runner.os }}-${{ matrix.arch }}-julia-${{ matrix.version }}-
-            ${{ runner.os }}-${{ matrix.arch }}-
-
+      - run: julia --color=yes -e 'using Pkg; ENV["PYTHON"]="${{ env.PYTHON }}";
+             Pkg.add("PyCall"); Pkg.build("PyCall"); Pkg.add(url="https://github.com/ancorso/POMDPGym.jl"); Pkg.instantiate();'
+      
+      # Use Julia-specific cache
+      - uses: julia-actions/cache@v2
+      
       # build the depencies, run the tests, and upload coverage results
       - uses: julia-actions/julia-buildpkg@v1
       - run: |
