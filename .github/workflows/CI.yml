@@ -52,8 +52,8 @@ jobs:
       # Configure PyCall to use Python 3.10
       - run: julia --color=yes -e 'using Pkg; ENV["PYTHON"]="${{ env.PYTHON }}"; Pkg.build("PyCall")'
       
-      # Now install POMDPGym
-      - run: julia --color=yes --project -e 'using Pkg; pkg"add https://github.com/ancorso/POMDPGym.jl"; Pkg.instantiate()'
+      # Now install POMDPGym and configure PyCall
+      - run: julia --color=yes --project -e 'using Pkg; ENV["PYTHON"]="${{ env.PYTHON }}"; Pkg.add("PyCall"); Pkg.build("PyCall"); pkg"add https://github.com/ancorso/POMDPGym.jl"; Pkg.instantiate()'
       # using a cache can speed up execution times
       - uses: actions/cache@v3
         env:
