@@ -16,7 +16,9 @@ jobs:
       fail-fast: false
       matrix:
         version:
-          - "1.9" # Latest
+          - "1.9"
+          - "1.10"
+          - "1"
         os:
           - ubuntu-latest
           - windows-latest
@@ -30,36 +32,43 @@ jobs:
       #     cuda: '11.2.2'
 
       # check out the project and install Julia
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - uses: julia-actions/setup-julia@v1
         with:
           version: ${{ matrix.version }}
           arch: ${{ matrix.arch }}
 
-      - run: pip install gym
+      # Set up Python 3.10
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      - run: pip install gym wandb
       - run: julia --color=yes --project -e 'using Pkg; pkg"add https://github.com/ancorso/POMDPGym.jl"; Pkg.instantiate()'
       # using a cache can speed up execution times
-      - uses: actions/cache@v2
+      - uses: actions/cache@v3
         env:
           cache-name: cache-artifacts
         with:
-          path: ~/.julia/artifacts
-          key: ${{ runner.os }}-${{ matrix.arch }}-test-${{ env.cache-name }}-${{ hashFiles('**/Project.toml') }}
+          path: |
+            ~/.julia/artifacts
+            ~/.julia/compiled
+            ~/.julia/packages
+            ~/.julia/registries
+          key: ${{ runner.os }}-${{ matrix.arch }}-julia-${{ matrix.version }}-${{ env.cache-name }}-${{ hashFiles('**/Project.toml') }}
           restore-keys: |
-            ${{ runner.os }}-${{ matrix.arch }}-test-${{ env.cache-name }}-
-            ${{ runner.os }}-${{ matrix.arch }}-test-
+            ${{ runner.os }}-${{ matrix.arch }}-julia-${{ matrix.version }}-${{ env.cache-name }}-
+            ${{ runner.os }}-${{ matrix.arch }}-julia-${{ matrix.version }}-
             ${{ runner.os }}-${{ matrix.arch }}-
-            ${{ runner.os }}-
 
       # build the depencies, run the tests, and upload coverage results
-      - uses: julia-actions/julia-buildpkg@latest
+      - uses: julia-actions/julia-buildpkg@v1
       - run: |
           git config --global user.name Tester
           git config --global user.email te@st.er
       - name: Run Tests
-        uses: julia-actions/julia-runtest@latest
+        uses: julia-actions/julia-runtest@v1
       - uses: julia-actions/julia-processcoverage@v1
-      - uses: codecov/codecov-action@v1
+      - uses: codecov/codecov-action@v3
         with:
           file: ./lcov.info
           flags: unittests
