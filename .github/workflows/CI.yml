@@ -8,6 +8,10 @@ on:
   pull_request:
   workflow_dispatch:  # Enables manual triggering
 
+permissions:
+  actions: write
+  contents: read
+
 jobs:
   # unit tests with coverage
   test:
@@ -48,14 +52,15 @@ jobs:
       - run: |
           echo "PYTHON=$(which python)" >> $GITHUB_ENV
           python -m pip install gym wandb
+          
+      # Use Julia-specific cache
+      - uses: julia-actions/cache@v2
       
       # Now install POMDPGym and configure PyCall
       - run: julia --color=yes -e 'using Pkg; ENV["PYTHON"]="${{ env.PYTHON }}";
              ENV["PYCALL_JL_RUNTIME_PYTHON"]="${{ env.PYTHON }}";
              Pkg.add("PyCall"); Pkg.build("PyCall"); Pkg.add(url="https://github.com/ancorso/POMDPGym.jl"); Pkg.instantiate();'
       
-      # Use Julia-specific cache
-      - uses: julia-actions/cache@v2
       
       # build the depencies, run the tests, and upload coverage results
       - uses: julia-actions/julia-buildpkg@v1
