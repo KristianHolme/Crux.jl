@@ -4,6 +4,8 @@ using Test
 try
 	using POMDPGym
 catch e
+	@info "Error loading POMDPGym" e
+	throw(e)
 	if e isa Union{ArgumentError,LoadError}
 		using Conda; Conda.add("gym")
 		Pkg.add(url="https://github.com/ancorso/POMDPGym.jl")
