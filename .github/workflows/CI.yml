@@ -56,7 +56,7 @@ jobs:
       # Use Julia-specific cache
       - uses: julia-actions/cache@v2
       
-      # Now install POMDPGym and configure PyCall
+      # Install POMDPGym and configure PyCall
       - run: |
           julia --color=yes -e '
             using Pkg;
@@ -66,7 +66,7 @@ jobs:
             Pkg.build("PyCall");
             # Add POMDPGym to test environment
             Pkg.activate("test");
-            Pkg.develop(url="https://github.com/ancorso/POMDPGym.jl");
+            Pkg.add(url="https://github.com/ancorso/POMDPGym.jl");
             Pkg.activate(".");
             Pkg.instantiate();
           '

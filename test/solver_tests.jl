@@ -36,7 +36,7 @@ function test_solver(𝒮fn, mdp, π...)
         else
             @test isapprox(action(π1, s), action(π2, s), atol=1e-1)
             @test isapprox(action(π2, s), action(π3, s), atol=1e-1)
-            # @test all(abs.(action(π2, s) .- action(π3, s)) .< 1e-2)
+            @test all(abs.(action(π2, s) .- action(π3, s)) .< 1e-2)
         end
     end
 end
