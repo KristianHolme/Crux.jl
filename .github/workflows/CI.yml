@@ -6,7 +6,6 @@ on:
     branches: [master]
     tags: ["*"]
   pull_request:
-  workflow_dispatch:  # Enables manual triggering
 
 permissions:
   actions: write
@@ -21,12 +20,11 @@ jobs:
       fail-fast: false
       matrix:
         version:
-          # - "1.9"
-          # - "1.10"
+          - "1.10"
           - "1"
         os:
           - ubuntu-latest
-          # - windows-latest
+          - windows-latest
         arch:
           - x64
     steps:
